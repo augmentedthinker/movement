@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Interactive VR Scene</title>
+    <!-- Essential for responsive layout on all devices, including VR headsets -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Include the A-Frame library. This is our core VR toolbox. -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- Include aframe-extras for robust controls like 'movement-controls'. -->
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.2.0/dist/aframe-extras.min.js"></script>
+
+    <style>
+      /* Basic styling to ensure the VR scene takes up the full browser window */
+      body {
+        margin: 0; /* Remove default margin around the page */
+        overflow: hidden; /* Hide scrollbars, as the VR scene will fill the view */
+        font-family: 'Inter', sans-serif; /* Use a clean, modern font */
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      This is where we define a custom A-Frame component called 'color-switcher'.
+      A-Frame components let us add special behaviors to our 3D objects.
+      This particular component will change the color of an entity when it's clicked.
+    -->
+    <script>
+      AFRAME.registerComponent('color-switcher', {
+        // Define a schema for properties this component can accept.
+        // In this case, 'colors' is an array of strings representing hex color codes.
+        schema: {
+          colors: { type: 'array', default: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#800080', '#000000'] }
+        },
+        // 'init' is called when the component is first attached to an entity (a 3D object).
+        init: function () {
+          const el = this.el; // Get a reference to the 3D object this component is attached to
+          const data = this.data; // Get the data (properties) defined in the schema
+
+          // Initialize the current color index to 0 (the first color in our list)
+          this.currentColorIndex = 0;
+
+          // Set the initial color of the object
+          el.setAttribute('material', 'color', data.colors[this.currentColorIndex]);
+
+          // Add an event listener for 'click' events on this object.
+          // When the object is clicked, the function inside will be executed.
+          el.addEventListener('click', () => {
+            // Increment the color index. Use the modulo operator (%) to loop back to 0
+            // when we reach the end of the colors array.
+            this.currentColorIndex = (this.currentColorIndex + 1) % data.colors.length;
+            // Update the object's material color to the new color.
+            el.setAttribute('material', 'color', data.colors[this.currentColorIndex]);
+            console.log(`Object clicked! New color: ${data.colors[this.currentColorIndex]}`);
+          });
+        }
+      });
+    </script>
+
+    <!--
+      The <a-scene> tag is the core of our A-Frame VR experience.
+      All our 3D objects and environments will go inside this.
+    -->
+    <a-scene>
+      <!--
+        <a-assets> is used to preload assets like images, videos, or 3D models.
+        For this simple example, we don't have external assets, but it's good practice.
+      -->
+      <a-assets>
+        <!-- No assets to preload for now -->
+      </a-assets>
+
+      <!--
+        <a-sky> creates a simple sky around our scene.
+        We'll give it a light gray color to keep it clean.
+      -->
+      <a-sky color="#ECECEC"></a-sky>
+
+      <!--
+        <a-camera> defines the user's viewpoint in the VR scene.
+        'look-controls' allows the user to look around with their head movements.
+        'oculus-touch-controls' specifically enables recognition of Oculus Quest 2 controller input.
+        'movement-controls' handles the actual continuous movement based on controller input (like the thumbstick).
+        'position="0 1.6 0"' sets the camera's initial height.
+      -->
+      <a-camera
+        look-controls
+        oculus-touch-controls="model: false" <!-- 'model: false' hides the default controller models if you don't need them -->
+        movement-controls="speed: 0.1"
+        position="0 1.6 0">
+        <!--
+          <a-cursor> is crucial for interaction in VR. It provides a visual reticle
+          that changes when it hovers over interactive objects, indicating they can be clicked.
+          'raycaster' enables it to detect intersections with other 3D objects.
+          'fuse="false"' means you have to explicitly click, not just gaze for a duration.
+          'position="0 0 -1"' places it 1 meter in front of the camera.
+          'geometry="primitive: ring; radiusOuter: 0.008; radiusInner: 0.005"' makes it a ring shape.
+          'material="color: black; shader: flat"' sets its appearance.
+        -->
+        <a-cursor
+          raycaster="objects: .collidable"
+          fuse="false"
+          position="0 0 -1"
+          geometry="primitive: ring; radiusOuter: 0.008; radiusInner: 0.005"
+          material="color: black; shader: flat">
+        </a-cursor>
+      </a-camera>
+
+      <!--
+        Here are our interactive 3D shapes.
+        Each shape has:
+        - 'id': A unique identifier.
+        - 'class="collidable"': This class tells our cursor's raycaster that these objects can be interacted with.
+        - 'position': X Y Z coordinates in 3D space. X is left/right, Y is up/down, Z is forward/backward.
+        - 'rotation': X Y Z rotation in degrees.
+        - 'color-switcher': This is our custom component we defined above. When you click these, their color will change.
+        - 'shadow': Adds a nice visual shadow for depth.
+      -->
+
+      <!-- A red box -->
+      <a-box
+        id="red-box"
+        class="collidable"
+        position="-2 1 -5"
+        rotation="0 45 0"
+        color-switcher="colors: #FF0000, #00FF00, #0000FF, #FFFF00, #800080, #000000"
+        shadow>
+      </a-box>
+
+      <!-- A green sphere -->
+      <a-sphere
+        id="green-sphere"
+        class="collidable"
+        position="0 1.25 -5"
+        radius="1.25"
+        color-switcher="colors: #00FF00, #0000FF, #FFFF00, #800080, #000000, #FF0000"
+        shadow>
+      </a-sphere>
+
+      <!-- A blue cylinder -->
+      <a-cylinder
+        id="blue-cylinder"
+        class="collidable"
+        position="2 0.75 -5"
+        radius="0.5"
+        height="1.5"
+        color-switcher="colors: #0000FF, #FFFF00, #800080, #000000, #FF0000, #00FF00"
+        shadow>
+      </a-cylinder>
+
+      <!-- A simple ground plane to stand on -->
+      <a-plane
+        position="0 0 -5"
+        rotation="-90 0 0"
+        width="10"
+        height="10"
+        color="#7BC8A4"
+        shadow>
+      </a-plane>
+
+      <!-- A light source to illuminate the scene -->
+      <a-entity light="type: ambient; color: #BBB; intensity: 0.5"></a-entity>
+      <a-entity light="type: directional; color: #FFF; intensity: 0.8" position="-1 1 1"></a-entity>
+
+    </a-scene>
+  </body>
+</html>
+

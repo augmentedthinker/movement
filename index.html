@@ -77,34 +77,65 @@
       <a-sky color="#ECECEC"></a-sky>
 
       <!--
-        <a-camera> defines the user's viewpoint in the VR scene.
-        'look-controls' allows the user to look around with their head movements.
-        'oculus-touch-controls' specifically enables recognition of Oculus Quest 2 controller input.
-        'movement-controls' handles the actual continuous movement based on controller input (like the thumbstick).
-        'position="0 1.6 0"' sets the camera's initial height.
+        VR Camera Rig - This creates a container for the camera and controllers.
+        The movement-controls component is applied to this rig, not directly to the camera.
+        This allows the entire rig (camera + controllers) to move together.
       -->
-      <a-camera
-        look-controls
-        oculus-touch-controls="model: false" <!-- 'model: false' hides the default controller models if you don't need them -->
-        movement-controls="speed: 0.1"
-        position="0 1.6 0">
+      <a-entity id="cameraRig" 
+                movement-controls="fly: false; constrainToNavMesh: false"
+                position="0 0 0">
+        
         <!--
-          <a-cursor> is crucial for interaction in VR. It provides a visual reticle
-          that changes when it hovers over interactive objects, indicating they can be clicked.
-          'raycaster' enables it to detect intersections with other 3D objects.
-          'fuse="false"' means you have to explicitly click, not just gaze for a duration.
-          'position="0 0 -1"' places it 1 meter in front of the camera.
-          'geometry="primitive: ring; radiusOuter: 0.008; radiusInner: 0.005"' makes it a ring shape.
-          'material="color: black; shader: flat"' sets its appearance.
+          <a-camera> defines the user's viewpoint in the VR scene.
+          'look-controls' allows the user to look around with their head movements.
+          'position="0 1.6 0"' sets the camera's initial height (1.6m is typical standing height).
         -->
-        <a-cursor
-          raycaster="objects: .collidable"
-          fuse="false"
-          position="0 0 -1"
-          geometry="primitive: ring; radiusOuter: 0.008; radiusInner: 0.005"
-          material="color: black; shader: flat">
-        </a-cursor>
-      </a-camera>
+        <a-camera
+          look-controls="pointerLockEnabled: false"
+          position="0 1.6 0">
+          <!--
+            <a-cursor> is crucial for interaction in VR. It provides a visual reticle
+            that changes when it hovers over interactive objects, indicating they can be clicked.
+            'raycaster' enables it to detect intersections with other 3D objects.
+            'fuse="false"' means you have to explicitly click, not just gaze for a duration.
+            'position="0 0 -1"' places it 1 meter in front of the camera.
+            'geometry="primitive: ring; radiusOuter: 0.008; radiusInner: 0.005"' makes it a ring shape.
+            'material="color: black; shader: flat"' sets its appearance.
+          -->
+          <a-cursor
+            raycaster="objects: .collidable"
+            fuse="false"
+            position="0 0 -1"
+            geometry="primitive: ring; radiusOuter: 0.008; radiusInner: 0.005"
+            material="color: black; shader: flat">
+          </a-cursor>
+        </a-camera>
+
+        <!--
+          Left Oculus Touch Controller
+          This entity represents the left controller and enables thumbstick movement.
+          'hand="left"' specifies this is the left controller.
+          'oculus-touch-controls' enables all the controller functionality.
+        -->
+        <a-entity
+          id="leftController"
+          oculus-touch-controls="hand: left"
+          raycaster="objects: .collidable; lineColor: red; lineOpacity: 0.5"
+          line="color: red; opacity: 0.5">
+        </a-entity>
+
+        <!--
+          Right Oculus Touch Controller
+          This entity represents the right controller.
+          'hand="right"' specifies this is the right controller.
+        -->
+        <a-entity
+          id="rightController"
+          oculus-touch-controls="hand: right"
+          raycaster="objects: .collidable; lineColor: blue; lineOpacity: 0.5"
+          line="color: blue; opacity: 0.5">
+        </a-entity>
+      </a-entity>
 
       <!--
         Here are our interactive 3D shapes.
@@ -165,4 +196,3 @@
     </a-scene>
   </body>
 </html>
-
